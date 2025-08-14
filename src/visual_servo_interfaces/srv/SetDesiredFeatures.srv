@@ -1,0 +1,13 @@
+# Service to manually set desired image features for IBVS control
+# This service allows setting specific pixel coordinates for the 4 corners of an ArUco marker
+
+# Request: 8 float values representing the desired pixel coordinates
+# Format: [u1, v1, u2, v2, u3, v3, u4, v4]
+# where (u1,v1) is top-left, (u2,v2) is top-right, (u3,v3) is bottom-right, (u4,v4) is bottom-left
+float64[8] desired_features
+
+---
+
+# Response
+bool success
+string message

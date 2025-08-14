@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: lbr_description
+    relative_path: urdf/med7/med7.xacro
+  srdf:
+    relative_path: config/med7.srdf
+  package_settings:
+    author_name: mhubii
+    author_email: m.huber_1994@hotmail.de
+    generated_timestamp: 1729340711
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

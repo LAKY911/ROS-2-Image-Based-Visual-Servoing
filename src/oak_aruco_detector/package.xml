@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>oak_aruco_detector</name>
+  <version>0.0.1</version>
+  <description>OAK ArUco detector package for ROS2 integration with DepthAI cameras.</description>
+  <maintainer email="lukas.vitek911@gmail.com">lukas</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>oak_aruco_detector_interfaces</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>ament_index_python</depend>
+  <depend>depthai_ros_driver</depend>
+  <depend>image_proc</depend>
+  <depend>vision_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>opencv-python</depend>
+  <depend>numpy</depend>
+  <depend>rclcpp_components</depend>
+  
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

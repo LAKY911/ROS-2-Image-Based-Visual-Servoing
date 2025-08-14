@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>ros2_joystick_gui</name>
+  <version>0.0.1</version>
+  <description>A joystick GUI for ROS2 using C++ and Qt5.</description>
+
+  <maintainer email="roboticsunveiled@gmail.com">foiegreis</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+
+  <build_depend>Qt5Core</build_depend>
+  <build_depend>Qt5Widgets</build_depend>
+  <build_depend>Qt5Gui</build_depend>
+
+  <exec_depend>Qt5Core</exec_depend>
+  <exec_depend>Qt5Widgets</exec_depend>
+  <exec_depend>Qt5Gui</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

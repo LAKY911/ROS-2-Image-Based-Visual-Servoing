@@ -1,0 +1,173 @@
+<?xml version="1.0" ?>
+<!-- xacro macros for oak1w mount (monocular version) -->
+<robot name="oak1w" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Include the xacro library -->
+    <xacro:include filename="$(find xacro)/xacro.xacro" />
+
+    <xacro:property name="package_name" value="oak1w_gazebo"/>
+    <xacro:arg name="ns"    default="oak1w"/>
+    
+    <!-- Material definition -->
+    <material name="black">
+        <color rgba="0.0 0.0 0.0 1.0"/>
+    </material>
+
+    <!-- Inertial macro -->
+    <xacro:macro name="solid_cuboid_inertial" params="rpy xyz mass x y z">
+        <inertial>
+            <mass value="${mass}"/>
+            <origin rpy="${rpy}" xyz="${xyz}"/>
+            <inertia ixx="${mass*(y*y + z*z)/12}" ixy="0" ixz="0"
+                    iyy="${mass*(x*x + z*z)/12}" iyz="0"
+                    izz="${mass*(x*x + y*y)/12}"/>
+        </inertial>
+    </xacro:macro>
+
+    <!-- Camera link macro -->
+    <xacro:macro name="oak1w_link" params="mount_point">
+        <!-- Updated OAK-1 W dimensions (36x54.5x27.8 mm) -->
+        <xacro:property name="oak1w_length" value="0.036" />  <!-- 36mm -->
+        <xacro:property name="oak1w_width" value="0.0545" />  <!-- 54.5mm -->
+        <xacro:property name="oak1w_depth" value="0.0278" />  <!-- 27.8mm -->
+        <xacro:property name="oak1w_mass" value="0.0531" />  <!-- 53.1g -->
+
+        <link name="oak1w_${mount_point}">
+            <visual>
+                <origin rpy="0 0 0" xyz="0 0 0" />
+                <geometry>
+                    <mesh filename="file://${prefix}/meshes/OAK-1W.stl"/>
+                </geometry>
+                <material name="black"/>
+            </visual>
+            <collision>
+                <origin rpy="0 0 0" xyz="0 0 0" />
+                <geometry>
+                    <box size="${oak1w_length} ${oak1w_width} ${oak1w_depth}"/>
+                </geometry>
+            </collision>
+            <xacro:solid_cuboid_inertial
+                rpy="0 0 0" xyz="0 0 0"
+                mass="${oak1w_mass}"
+                x="${oak1w_length}" y="${oak1w_width}" z="${oak1w_depth}" />
+        </link>
+        
+        <!-- Camera optical frame -->
+        <joint name="camera_optical_joint_${mount_point}" type="fixed">
+            <origin rpy="-1.57079632769 0 -1.570796332769" xyz="0 0 0" />
+            <parent link="oak1w_${mount_point}" />
+            <child link="camera_optical_frame_${mount_point}" />
+        </joint> 
+
+        <link name="camera_optical_frame_${mount_point}">
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" />
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+            </inertial>
+        </link>
+    </xacro:macro>
+
+    <!-- Camera joint macro -->
+    <xacro:macro name="oak1w_joint" params="x y z roll pitch yaw mount_point parent_link">
+        <joint name="oak1w_joint_${mount_point}" type="fixed">
+            <origin rpy="${roll} ${pitch} ${yaw}" xyz="${x} ${y} ${z}"/>
+            <parent link="${parent_link}"/>
+            <child link="oak1w_${mount_point}"/>
+        </joint>
+
+        <!-- Gazebo plugin -->
+        <gazebo reference="oak1w_${mount_point}">
+            <material>Gazebo/White</material>
+            <sensor type="camera" name="oak1w_camera_${mount_point}">
+                <update_rate>30.0</update_rate>
+                <camera name="head">
+                    <horizontal_fov>1.65806</horizontal_fov>
+                    <image>
+                        <width>1920</width>
+                        <height>1080</height>
+                        <format>R8G8B8</format>
+                    </image>
+                    <clip>
+                        <near>0.02</near>
+                        <far>300</far>
+                    </clip>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.007</stddev>
+                    </noise>
+                </camera>
+                <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+                    <alwaysOn>true</alwaysOn>
+                    <updateRate>0.0</updateRate>
+                    <cameraName>oak1w_camera_${mount_point}</cameraName>
+                    <imageTopicName>image_raw</imageTopicName>
+                    <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+                    <frameName>camera_optical_frame_${mount_point}</frameName>
+                    <hackBaseline>0.0</hackBaseline>
+                    <distortionK1>0.0</distortionK1>
+                    <distortionK2>0.0</distortionK2>
+                    <distortionK3>0.0</distortionK3>
+                    <distortionT1>0.0</distortionT1>
+                    <distortionT2>0.0</distortionT2>
+                </plugin>
+            </sensor>
+        </gazebo>
+    </xacro:macro>
+
+
+
+    <link name="$(arg ns)/base_link"/>
+
+    <!-- MONOCULAR CAMERA -->
+    <joint name="$(arg ns)/camera_joint" type="fixed">
+        <origin xyz="-0.1 0 0.06" rpy="0 0 3.14159265"/>
+        <parent link="$(arg ns)/base_link"/>
+        <child link="$(arg ns)/camera_frame"/>
+    </joint>
+    <link name="$(arg ns)/camera_frame">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <mesh filename="package://${package_name}/meshes/OAK-1W.stl" scale="1.0 1.0 1.0"/>
+            </geometry>
+            <material name="white">
+            <color rgba="0.9 0.9 0.9 1.0"/>
+            </material>
+        </visual>
+    </link>
+
+    <gazebo reference="$(arg ns)/camera_frame">
+    <sensor name="camera" type="camera">
+        <ignition_frame_id>$(arg ns)/camera_frame</ignition_frame_id>
+        <optical_frame_id>$(arg ns)/camera_frame</optical_frame_id>
+        <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <image>
+            <width>1920</width>
+            <height>1080</height>
+            <format>RGB_INT8</format>
+        </image>
+        <camera_info_topic>$(arg ns)/camera/camera_info</camera_info_topic>
+        <clip>
+            <near>0.1</near>
+            <far>10</far>
+        </clip>
+        <distortion>
+            <k1>0.096559</k1>
+            <k2>-0.237840</k2>
+            <k3>0.113659</k3>
+            <p1>0.000396</p1>
+            <p2>0.000247</p2>
+            <center>0.5 0.5</center>
+        </distortion>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>10</update_rate>
+        <visualize>false</visualize>
+        <topic>$(arg ns)/camera/image_raw</topic>
+        <enable_metrics>true</enable_metrics>
+    </sensor>
+</gazebo>
+</robot>
